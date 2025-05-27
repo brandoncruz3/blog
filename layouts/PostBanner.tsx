@@ -1,3 +1,5 @@
+'use client'
+
 import { ReactNode } from 'react'
 import Image from '@/components/Image'
 import Bleed from 'pliny/ui/Bleed'
