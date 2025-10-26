@@ -1,12 +1,12 @@
 {
-  "nextjs": 1,
-  "spotify": 1,
-  "api": 1,
-  "react": 1,
-  "oauth": 1,
   "aws": 1,
   "devops": 1,
   "infrastructure": 1,
   "reliability": 1,
-  "risk-management": 1
+  "risk-management": 1,
+  "nextjs": 1,
+  "spotify": 1,
+  "api": 1,
+  "react": 1,
+  "oauth": 1
 }
