@@ -15,19 +15,17 @@ export async function GET(request: NextRequest) {
 
   if (!code) {
     console.error('No authorization code received from Spotify')
-    return NextResponse.redirect(
-      new URL('/?spotify_error=no_code', request.url)
-    )
+    return NextResponse.redirect(new URL('/?spotify_error=no_code', request.url))
   }
 
   try {
     const tokens = await exchangeCodeForTokens(code)
-    
+
     console.log('✅ Spotify tokens received!')
     console.log('Access token:', tokens.access_token?.substring(0, 20) + '...')
     console.log('Refresh token:', tokens.refresh_token?.substring(0, 20) + '...')
     console.log('Expires in:', tokens.expires_in, 'seconds')
-    
+
     // In a real application, you would securely store these tokens
     // For development, we'll show them to copy to .env
     const html = `
@@ -120,11 +118,10 @@ Scope: ${tokens.scope}
         </body>
       </html>
     `
-    
+
     return new NextResponse(html, {
       headers: { 'Content-Type': 'text/html' },
     })
-    
   } catch (error) {
     console.error('Error exchanging code for tokens:', error)
     return NextResponse.redirect(

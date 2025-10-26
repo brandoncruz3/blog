@@ -7,20 +7,16 @@ const TOKEN_ENDPOINT = `https://accounts.spotify.com/api/token`
 
 // PKCE utility functions
 function base64URLEncode(str: Buffer): string {
-  return str
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '')
+  return str.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
 }
 
 function sha256(buffer: string): Buffer {
-  const crypto = require('crypto')
+  const crypto = require('node:crypto')
   return crypto.createHash('sha256').update(buffer).digest()
 }
 
 function generateCodeVerifier(): string {
-  const crypto = require('crypto')
+  const crypto = require('node:crypto')
   const codeVerifier = base64URLEncode(crypto.randomBytes(32))
   return codeVerifier
 }
@@ -46,7 +42,7 @@ const getAccessToken = async () => {
   const response = await fetch(TOKEN_ENDPOINT, {
     method: 'POST',
     headers: {
-      'Authorization': `Basic ${basic}`,
+      Authorization: `Basic ${basic}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: body.toString(),
@@ -58,9 +54,11 @@ const getAccessToken = async () => {
       status: response.status,
       statusText: response.statusText,
       body: errorText,
-      refresh_token: refresh_token ? `${refresh_token.substring(0, 10)}...` : 'NOT SET'
+      refresh_token: refresh_token ? `${refresh_token.substring(0, 10)}...` : 'NOT SET',
     })
-    throw new Error(`Token refresh failed: ${response.status} ${response.statusText} - ${errorText}`)
+    throw new Error(
+      `Token refresh failed: ${response.status} ${response.statusText} - ${errorText}`
+    )
   }
 
   return response.json()

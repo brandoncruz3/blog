@@ -4,7 +4,7 @@ import useSWR from 'swr'
 
 import fetcher from 'lib/fetcher'
 import MusicEqualizer from './MusicEqualizer'
-import { NowPlayingSong } from 'app/api/now-playing'
+import { NowPlayingSong } from 'types/spotify'
 import CustomLink from './CustomLink'
 
 export default function NowPlaying() {

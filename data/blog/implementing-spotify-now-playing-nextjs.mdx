@@ -1,0 +1,558 @@
+---
+title: 'Building a Spotify Now Playing Widget for Next.js'
+date: '2024-10-26'
+tags: ['nextjs', 'spotify', 'api', 'react', 'oauth']
+draft: false
+summary: 'Learn how to integrate Spotify Web API with Next.js to display your currently playing track, including OAuth setup, token management, and troubleshooting common issues.'
+---
+
+# Building a Spotify Now Playing Widget for Next.js
+
+Ever wanted to show what you're currently listening to on your personal website? In this post, I'll walk you through implementing a Spotify "Now Playing" widget in Next.js, complete with OAuth authentication, token refresh handling, and a slick animated equalizer.
+
+## The End Result
+
+Before diving into the implementation, here's what we're building:
+
+- A real-time display of currently playing Spotify tracks
+- Automatic token refresh for uninterrupted service  
+- Animated music equalizer when music is playing
+- Graceful fallback when nothing is playing
+- Proper error handling and debugging tools
+
+## Setting Up Spotify Web API
+
+### 1. Create a Spotify App
+
+First, head to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and create a new app:
+
+1. Click "Create an App"
+2. Fill in your app name and description
+3. Accept the terms and create the app
+4. Note your **Client ID** and **Client Secret**
+
+### 2. Configure Redirect URIs
+
+This is crucial and where many implementations fail. Add these **exact** redirect URIs to your app settings:
+
+```
+http://127.0.0.1:3001/callback
+http://127.0.0.1:3000/api/spotify/callback
+```
+
+The first is for token generation, the second for your Next.js app.
+
+## Environment Setup
+
+Create a `.env.local` file with your Spotify credentials:
+
+```bash
+SPOTIFY_CLIENT_ID=your_client_id_here
+SPOTIFY_CLIENT_SECRET=your_client_secret_here  
+SPOTIFY_REFRESH_TOKEN=your_refresh_token_here
+NEXT_PUBLIC_SPOTIFY_REDIRECT_URI=http://127.0.0.1:3000/api/spotify/callback
+```
+
+## Authentication Approaches: PKCE vs Client Credentials
+
+Before diving into token generation, it's worth understanding the two authentication approaches available:
+
+### PKCE (Proof Key for Code Exchange) - Recommended
+PKCE is the modern, more secure approach for client-side applications. It doesn't require exposing your client secret in the browser and is recommended by Spotify for all new implementations.
+
+### Client Credentials Flow - Server-Side Only
+This traditional approach requires your client secret and should only be used in server-side environments where the secret can be kept secure.
+
+For this implementation, I'll show both approaches since each has its place.
+
+## PKCE Implementation
+
+First, let's look at the PKCE approach. Create `lib/spotify-pkce.ts`:
+
+```typescript
+/**
+ * Spotify PKCE Authentication Helper
+ * 
+ * This implements the Authorization Code with PKCE flow for Spotify Web API.
+ * PKCE is more secure as it doesn't require client_secret in the browser.
+ */
+
+let codeVerifier: string | null = null
+let codeChallenge: string | null = null
+
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID!
+const REDIRECT_URI = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI || 'http://127.0.0.1:3000/api/spotify/callback'
+
+// PKCE utility functions
+function base64URLEncode(str: Buffer): string {
+  return str
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '')
+}
+
+function sha256(buffer: string): Buffer {
+  const crypto = require('crypto')
+  return crypto.createHash('sha256').update(buffer).digest()
+}
+
+function generateCodeVerifier(): string {
+  const crypto = require('crypto')
+  return base64URLEncode(crypto.randomBytes(32))
+}
+
+function generateCodeChallenge(verifier: string): string {
+  return base64URLEncode(sha256(verifier))
+}
+
+export function generateAuthUrl(): string {
+  // Generate PKCE parameters
+  codeVerifier = generateCodeVerifier()
+  codeChallenge = generateCodeChallenge(codeVerifier)
+  
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id: CLIENT_ID,
+    scope: 'user-read-currently-playing user-read-playback-state',
+    redirect_uri: REDIRECT_URI,
+    code_challenge_method: 'S256',
+    code_challenge: codeChallenge,
+  })
+
+  return `https://accounts.spotify.com/authorize?${params.toString()}`
+}
+
+export async function exchangeCodeForTokens(code: string) {
+  if (!codeVerifier) {
+    throw new Error('No code verifier available. Generate auth URL first.')
+  }
+
+  const response = await fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: REDIRECT_URI,
+      client_id: CLIENT_ID,
+      code_verifier: codeVerifier,
+    }),
+  })
+
+  if (!response.ok) {
+    throw new Error(`Token exchange failed: ${response.status}`)
+  }
+
+  return response.json()
+}
+```
+
+You can then create API routes to handle the PKCE flow:
+
+```typescript
+// app/api/spotify/route.ts
+import { generateAuthUrl } from 'lib/spotify-pkce'
+import { NextResponse } from 'next/server'
+
+export async function GET() {
+  const authUrl = generateAuthUrl()
+  return NextResponse.redirect(authUrl)
+}
+```
+
+```typescript
+// app/api/spotify/callback/route.ts  
+import { exchangeCodeForTokens } from 'lib/spotify-pkce'
+import { NextRequest, NextResponse } from 'next/server'
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const code = searchParams.get('code')
+
+  if (!code) {
+    return NextResponse.json({ error: 'No authorization code' }, { status: 400 })
+  }
+
+  try {
+    const tokens = await exchangeCodeForTokens(code)
+    
+    // In a real app, you'd save the refresh_token securely
+    console.log('Refresh token:', tokens.refresh_token)
+    
+    return NextResponse.json({ success: true, tokens })
+  } catch (error) {
+    return NextResponse.json({ error: 'Token exchange failed' }, { status: 500 })
+  }
+}
+```
+
+## Generating the Refresh Token (Client Credentials)
+
+For server-side token generation, the trickiest part is getting a valid refresh token. I created a helper script to automate this:
+
+```javascript
+// generate-spotify-token.js
+const http = require('http');
+const { URL } = require('url');
+const querystring = require('querystring');
+
+require('dotenv').config();
+
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+const REDIRECT_URI = 'http://127.0.0.1:3001/callback';
+const PORT = 3001;
+
+// Scopes needed for now playing
+const SCOPES = [
+  'user-read-currently-playing',
+  'user-read-playback-state'
+].join(' ');
+
+// Generate authorization URL
+const authUrl = `https://accounts.spotify.com/authorize?${querystring.stringify({
+  response_type: 'code',
+  client_id: CLIENT_ID,
+  scope: SCOPES,
+  redirect_uri: REDIRECT_URI,
+})}`;
+
+console.log('🎵 Spotify OAuth Helper');
+console.log('======================\n');
+console.log('Step 1: Open this URL in your browser:\n');
+console.log(authUrl);
+console.log('\nAfter authorization, you\'ll be redirected to localhost:3001/callback');
+
+// Start local server to capture callback
+const server = http.createServer(async (req, res) => {
+  const url = new URL(req.url, `http://localhost:${PORT}`);
+  
+  if (url.pathname === '/callback') {
+    const code = url.searchParams.get('code');
+    
+    if (code) {
+      try {
+        // Exchange code for tokens
+        const basic = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
+        const tokenResponse = await fetch('https://accounts.spotify.com/api/token', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${basic}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: querystring.stringify({
+            grant_type: 'authorization_code',
+            code: code,
+            redirect_uri: REDIRECT_URI,
+          }),
+        });
+
+        const tokenData = await tokenResponse.json();
+        
+        console.log('\n🔑 Your refresh token:');
+        console.log(tokenData.refresh_token);
+        console.log('\nAdd this to your .env file:');
+        console.log(`SPOTIFY_REFRESH_TOKEN="${tokenData.refresh_token}"`);
+        
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(`
+          <h1>✅ Success!</h1>
+          <h2>Your refresh token:</h2>
+          <p><code>${tokenData.refresh_token}</code></p>
+          <p>Add this to your .env file and restart your server.</p>
+        `);
+        
+        server.close();
+      } catch (error) {
+        console.error('Error:', error);
+        res.writeHead(500);
+        res.end('Error occurred');
+      }
+    }
+  }
+});
+
+server.listen(PORT, () => {
+  console.log('Starting local server to capture callback...');
+});
+```
+
+Run this script with `node generate-spotify-token.js` and follow the OAuth flow.
+
+## Implementing the Spotify API Client
+
+Create `lib/spotify.ts` with proper token refresh handling:
+
+```typescript
+const client_id = process.env.SPOTIFY_CLIENT_ID
+const client_secret = process.env.SPOTIFY_CLIENT_SECRET
+const refresh_token = process.env.SPOTIFY_REFRESH_TOKEN
+
+const NOW_PLAYING_ENDPOINT = `https://api.spotify.com/v1/me/player/currently-playing`
+const TOKEN_ENDPOINT = `https://accounts.spotify.com/api/token`
+
+const getAccessToken = async () => {
+  if (!refresh_token) {
+    throw new Error('No refresh token available. Please re-authenticate.')
+  }
+
+  if (!client_id || !client_secret) {
+    throw new Error('Missing Spotify client credentials')
+  }
+
+  const basic = Buffer.from(`${client_id}:${client_secret}`).toString('base64')
+  const body = new URLSearchParams()
+  body.append('grant_type', 'refresh_token')
+  body.append('refresh_token', refresh_token)
+
+  const response = await fetch(TOKEN_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Basic ${basic}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: body.toString(),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error('Spotify token refresh error:', {
+      status: response.status,
+      statusText: response.statusText,
+      body: errorText,
+      refresh_token: refresh_token ? `${refresh_token.substring(0, 10)}...` : 'NOT SET'
+    })
+    throw new Error(`Token refresh failed: ${response.status} ${response.statusText} - ${errorText}`)
+  }
+
+  return response.json()
+}
+
+export const getNowPlaying = async () => {
+  const { access_token } = await getAccessToken()
+
+  return fetch(NOW_PLAYING_ENDPOINT, {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
+  })
+}
+```
+
+## Creating the API Route
+
+Set up the Next.js API route at `app/api/now-playing/route.ts`:
+
+```typescript
+import { getNowPlaying } from 'lib/spotify'
+import { NextResponse } from 'next/server'
+
+export interface NowPlayingSong {
+  isPlaying: boolean
+  artist?: string
+  songUrl?: string
+  title?: string
+}
+
+export async function GET() {
+  try {
+    const response = await getNowPlaying()
+
+    if (response.status === 204 || response.status > 400) {
+      return NextResponse.json({ isPlaying: false })
+    }
+
+    const nowPlaying = await response.json()
+    
+    if (nowPlaying.currently_playing_type === 'track') {
+      const isPlaying = nowPlaying.is_playing
+      const title = nowPlaying.item.name
+      const artist = nowPlaying.item.artists
+        .map((_artist: { name: string }) => _artist.name)
+        .join(', ')
+      const songUrl = nowPlaying.item.external_urls.spotify
+
+      return NextResponse.json(
+        {
+          artist,
+          isPlaying,
+          songUrl,
+          title,
+        },
+        {
+          headers: {
+            'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+          },
+        }
+      )
+    } else if (nowPlaying.currently_playing_type === 'episode') {
+      return NextResponse.json({
+        isPlaying: nowPlaying.is_playing,
+        songUrl: 'https://open.spotify.com',
+        title: 'Podcast',
+      })
+    }
+
+    return NextResponse.json({ isPlaying: false })
+  } catch (error) {
+    console.error('Error fetching now playing:', error)
+    return NextResponse.json({ isPlaying: false })
+  }
+}
+```
+
+## Building the React Component
+
+Create a `NowPlaying` component with SWR for real-time updates:
+
+```tsx
+'use client'
+
+import useSWR from 'swr'
+import fetcher from 'lib/fetcher'
+import MusicEqualizer from './MusicEqualizer'
+import { NowPlayingSong } from 'app/api/now-playing'
+import CustomLink from './CustomLink'
+
+export default function NowPlaying() {
+  const { data } = useSWR<NowPlayingSong>('/api/now-playing', fetcher)
+
+  return (
+    <div className="flex items-center gap-1 sm:gap-2">
+      <svg className="h-5 w-5 flex-none" viewBox="0 0 168 168">
+        <path
+          fill="#1ED760"
+          d="M83.996.277C37.747.277.253 37.77.253 84.019c0 46.251 37.494 83.741 83.743 83.741 46.254 0 83.744-37.49 83.744-83.741 0-46.246-37.49-83.738-83.745-83.738l.001-.004zm38.404 120.78a5.217 5.217 0 01-7.18 1.73c-19.662-12.01-44.414-14.73-73.564-8.07a5.222 5.222 0 01-6.249-3.93 5.213 5.213 0 013.926-6.25c31.9-7.291 59.263-4.15 81.337 9.34 2.46 1.51 3.24 4.72 1.73 7.18zm10.25-22.805c-1.89 3.075-5.91 4.045-8.98 2.155-22.51-13.839-56.823-17.846-83.448-9.764-3.453 1.043-7.1-.903-8.148-4.35a6.538 6.538 0 014.354-8.143c30.413-9.228 68.222-4.758 94.072 11.127 3.07 1.89 4.04 5.91 2.15 8.976v-.001zm.88-23.744c-26.99-16.031-71.52-17.505-97.289-9.684-4.138 1.255-8.514-1.081-9.768-5.219a7.835 7.835 0 015.221-9.771c29.581-8.98 78.756-7.245 109.83 11.202a7.823 7.823 0 012.74 10.733c-2.2 3.722-7.02 4.949-10.73 2.739z"
+        />
+      </svg>
+      {data?.isPlaying && data?.songUrl && <MusicEqualizer />}
+      <div className="flex max-w-full truncate">
+        {data?.songUrl ? (
+          <CustomLink
+            className="hover:text-spotify-green max-w-max truncate text-sm"
+            href={data.songUrl}
+            title={data.title}
+          >
+            {data.title}
+          </CustomLink>
+        ) : (
+          <p className="text-sm">Not playing</p>
+        )}
+      </div>
+    </div>
+  )
+}
+```
+
+## Adding the Animated Equalizer
+
+Create a fun `MusicEqualizer` component:
+
+```tsx
+export default function MusicEqualizer() {
+  return (
+    <div className="flex items-end space-x-0.5">
+      {[...Array(4)].map((_, i) => (
+        <div
+          key={i}
+          className="w-0.5 bg-spotify-green animate-pulse"
+          style={{
+            height: '12px',
+            animationDelay: `${i * 0.1}s`,
+            animationDuration: '0.6s',
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+```
+
+## Common Issues and Solutions
+
+### 1. "Invalid Redirect URI"
+**Problem**: Redirect URIs in Spotify app don't match your code.  
+**Solution**: Ensure exact matches, including protocol (`http://` vs `https://`) and trailing slashes.
+
+### 2. "Token Refresh Failed: 400 Bad Request"
+**Problem**: Missing `Authorization: Basic` header or wrong credentials format.  
+**Solution**: Use Base64 encoded `client_id:client_secret` in the Authorization header.
+
+### 3. "Refresh Token Revoked" 
+**Problem**: Token expired or was revoked by user/Spotify.  
+**Solution**: Re-run the token generation script to get a fresh refresh token.
+
+### 4. PKCE vs Client Credentials Confusion
+**Problem**: Mixing PKCE parameters with client credentials flow.  
+**Solution**: Choose one approach consistently:
+- **PKCE**: Use `code_verifier` and `code_challenge`, no client secret needed
+- **Client Credentials**: Use `Authorization: Basic` header with client secret
+
+### 5. "Invalid Client" with PKCE
+**Problem**: Including client_secret in PKCE flow or wrong challenge method.  
+**Solution**: PKCE doesn't need client_secret, and ensure `code_challenge_method` is set to `S256`.
+
+## Debugging Tools
+
+I created several helper scripts for troubleshooting:
+
+```javascript
+// debug-spotify.js - Test your configuration
+const client_id = process.env.SPOTIFY_CLIENT_ID;
+const refresh_token = process.env.SPOTIFY_REFRESH_TOKEN;
+
+console.log('SPOTIFY_CLIENT_ID:', client_id ? `${client_id.substring(0, 8)}...` : 'NOT SET');
+console.log('SPOTIFY_REFRESH_TOKEN:', refresh_token ? `${refresh_token.substring(0, 8)}...` : 'NOT SET');
+
+// Test token refresh and now playing API
+// ... (implementation details)
+```
+
+## Deployment Considerations
+
+When deploying to production:
+
+1. Update redirect URIs to include your production domains
+2. Use secure environment variable storage
+3. Consider implementing webhook-based updates for better performance
+4. Add proper error boundaries for graceful degradation
+
+## PKCE vs Client Credentials: Which to Choose?
+
+### Use PKCE when:
+- Building client-side applications (React, Vue, etc.)
+- You want maximum security without exposing secrets
+- Following modern OAuth best practices
+- Building mobile or desktop applications
+
+### Use Client Credentials when:
+- Building server-side only applications
+- You have secure server environment for storing secrets
+- Working with existing server-side infrastructure
+- Need simpler implementation for backend services
+
+For this blog implementation, I used the **Client Credentials** approach since the token refresh happens server-side in the API route, but both approaches are valid depending on your architecture.
+
+## Conclusion
+
+Implementing Spotify Now Playing might seem daunting, but breaking it down into OAuth setup, token management, and React components makes it manageable. The key challenges are:
+
+- Choosing the right authentication flow (PKCE vs Client Credentials)
+- Getting redirect URIs exactly right
+- Properly implementing token refresh with correct headers
+- Handling edge cases (no music playing, podcasts, etc.)
+- Understanding when to use each authentication approach
+
+The result is a delightful addition to any personal website that shows visitors what you're currently jamming to! 🎵
+
+**Security Note**: Always use PKCE for client-side applications and keep client secrets secure in server-side implementations. Never expose client secrets in frontend code.
+
+**Resources:**
+- [Spotify Web API Documentation](https://developer.spotify.com/documentation/web-api/)
+- [Next.js API Routes](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
+- [SWR for Data Fetching](https://swr.vercel.app/)
+
+Have you implemented something similar? What challenges did you face? Let me know in the comments below!

@@ -1,12 +1,6 @@
 import { getNowPlaying } from 'lib/spotify'
 import { NextResponse } from 'next/server'
-
-export interface NowPlayingSong {
-  isPlaying: boolean
-  artist?: string
-  songUrl?: string
-  title?: string
-}
+import { NowPlayingSong } from 'types/spotify'
 
 export async function GET() {
   try {
@@ -17,7 +11,7 @@ export async function GET() {
     }
 
     const nowPlaying = await response.json()
-    
+
     if (nowPlaying.currently_playing_type === 'track') {
       // song
       const isPlaying = nowPlaying.is_playing

@@ -11,9 +11,9 @@ export default function SpotifyAuth() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[200px] p-6 border border-gray-200 rounded-lg dark:border-gray-700">
+    <div className="flex min-h-[200px] flex-col items-center justify-center rounded-lg border border-gray-200 p-6 dark:border-gray-700">
       <div className="text-center">
-        <div className="flex justify-center mb-4">
+        <div className="mb-4 flex justify-center">
           <svg className="h-12 w-12" viewBox="0 0 168 168">
             <path
               fill="#1ED760"
@@ -21,39 +21,53 @@ export default function SpotifyAuth() {
             />
           </svg>
         </div>
-        
-        <h3 className="text-lg font-semibold mb-2 dark:text-white">
-          Connect to Spotify
-        </h3>
-        
-        <p className="text-gray-600 dark:text-gray-400 mb-4 max-w-md">
+
+        <h3 className="mb-2 text-lg font-semibold dark:text-white">Connect to Spotify</h3>
+
+        <p className="mb-4 max-w-md text-gray-600 dark:text-gray-400">
           Authorize this app to access your Spotify account and show what you're currently playing.
         </p>
-        
+
         <button
           onClick={handleAuth}
           disabled={isAuthenticating}
-          className="inline-flex items-center px-4 py-2 bg-[#1ED760] hover:bg-[#1db954] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center rounded-lg bg-[#1ED760] px-4 py-2 font-medium text-white transition-colors hover:bg-[#1db954] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isAuthenticating ? (
             <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                className="mr-3 -ml-1 h-5 w-5 animate-spin text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               Connecting...
             </>
           ) : (
             <>
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.71 14.29L14.41 15l1.29-1.29c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L13 13.59l-1.29-1.29c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41L11.59 15l-1.29 1.29c-.39.39-.39 1.02 0 1.41.19.19.44.29.71.29s.52-.1.71-.29L13 16.41l1.29 1.29c.19.19.44.29.71.29s.52-.1.71-.29c.39-.39.39-1.02 0-1.41z"/>
+              <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.71 14.29L14.41 15l1.29-1.29c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L13 13.59l-1.29-1.29c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41L11.59 15l-1.29 1.29c-.39.39-.39 1.02 0 1.41.19.19.44.29.71.29s.52-.1.71-.29L13 16.41l1.29 1.29c.19.19.44.29.71.29s.52-.1.71-.29c.39-.39.39-1.02 0-1.41z" />
               </svg>
               Connect with Spotify
             </>
           )}
         </button>
-        
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
+
+        <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
           Uses secure PKCE authentication flow
         </p>
       </div>
