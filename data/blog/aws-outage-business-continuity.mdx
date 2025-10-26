@@ -1,0 +1,30 @@
+---
+title: 'AWS Outage & What It Teaches Us About Business Continuity'
+date: '2025-10-21'
+tags: ['aws', 'devops', 'infrastructure', 'reliability', 'risk-management']
+draft: false
+summary: 'Reflections on the recent AWS outage and what it reveals about business continuity planning, risk management, and finding the right balance between reliability and cost.'
+---
+
+# AWS Outage & What It Teaches Us About Business Continuity
+
+Yesterday’s (10/20/25) AWS outage got a lot of folks thinking. We all knew this could happen — yet somehow, everyone was still surprised when it did.
+
+What stood out most to me was how quickly the conversations shifted to “spin up a new region,” even though for most teams, that process takes longer than just waiting out the outage. Isn’t that exactly what Business Continuity Plans (BCPs) are supposed to account for?
+
+A business continuity plan isn’t for when something you rely on is down for a day. It’s for when a service you depend on is retiring tomorrow — or when the entirety of us-east-1 is literally on fire and unrecoverable. That’s a powerful distinction. BCPs aren’t meant to solve every minor disruption. They’re about survivability — what happens when the infrastructure you depend on becomes permanently unavailable.
+
+At the same time, these “short outages” aren’t exactly rare. We treat them as edge cases, but they happen often enough to expose how few organizations are truly prepared for a catastrophic failure.
+
+Many of us engineers know all too well: If your service must stay up through a region failure, you have to design for that — multi-region failover, hot spares, regular drills. But that reliability comes with exponentially higher cost. The trade-off isn’t always worth it versus a single day of downtime.
+
+Ultimately, it’s a reminder that resilience isn’t binary. You have to decide what level of reliability your business truly needs — and what level of complexity and spend you’re willing to accept to get there.
+
+And that’s where the heart of the matter lies — risk management.
+
+What is the probability that your infrastructure will fail, and what will the impact be when it does? You can implement controls to limit that risk — auto-failover to another region, multi-cloud redundancy, or automated recovery mechanisms — but each layer of protection increases complexity and cost.
+
+Achieving more “nines” of availability means exponential investment. Even the big three hyperscalers fail from time to time, despite their deep pockets. Fully mitigating all risk is impossible — the real challenge is finding the right balance between residual risk and the additional cost required to reduce it.
+
+💡 Takeaway: Control what you can control. Design and build for graceful degradation, use queues and backoff strategies, automate recovery. Don’t chase zero downtime — aim for predictable recovery and operational resilience.
+
