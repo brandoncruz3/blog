@@ -14,8 +14,8 @@ import ScrollTopAndComment from '@/components/ScrollTopAndComment'
 import { BlogStructuredData } from '@/components/StructuredData'
 
 const editUrl = (path) => `${siteMetadata.siteRepo}/blob/main/data/${path}`
-const discussUrl = (path) =>
-  `https://mobile.twitter.com/search?q=${encodeURIComponent(`${siteMetadata.siteUrl}/${path}`)}`
+const discussUrl = (path, title) =>
+  `https://x.com/intent/tweet?text=${encodeURIComponent(`Check out my latest blog post: "${title}"`)}&url=${encodeURIComponent(`${siteMetadata.siteUrl}/${path}`)}&via=BrandonCruz803`
 
 const postDateTemplate: Intl.DateTimeFormatOptions = {
   weekday: 'long',
@@ -100,8 +100,8 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
             <div className="divide-y divide-gray-200 xl:col-span-3 xl:row-span-2 xl:pb-0 dark:divide-gray-700">
               <div className="prose dark:prose-invert max-w-none pt-10 pb-8">{children}</div>
               <div className="pt-6 pb-6 text-sm text-gray-700 dark:text-gray-300">
-                <Link href={discussUrl(path)} rel="nofollow">
-                  Discuss on Twitter
+                <Link href={discussUrl(path, title)} rel="nofollow">
+                  Discuss on X
                 </Link>
                 {` • `}
                 <Link href={editUrl(filePath)}>View on GitHub</Link>
