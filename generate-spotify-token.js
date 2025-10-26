@@ -19,7 +19,7 @@ require('dotenv').config();
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const REDIRECT_URI = 'http://localhost:3001/callback';
+const REDIRECT_URI = 'http://127.0.0.1:3001/callback';
 const PORT = 3001;
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
