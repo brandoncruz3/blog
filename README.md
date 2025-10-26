@@ -1,42 +1,51 @@
 ![tailwind-nextjs-banner](/public/static/images/twitter-card.png)
 
-# Tailwind Nextjs Starter Blog
+# brandoncruz.dev - Personal Blog
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/timlrx/tailwind-nextjs-starter-blog?style=social)](https://GitHub.com/timlrx/tailwind-nextjs-starter-blog/stargazers/)
-[![GitHub forks](https://img.shields.io/github/forks/timlrx/tailwind-nextjs-starter-blog?style=social)](https://github.com/timlrx/tailwind-nextjs-starter-blog/forks)
-[![Twitter URL](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Ftimlrxx)](https://x.com/timlrxx)
-[![Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&link=https://github.com/sponsors/timlrx)](https://github.com/sponsors/timlrx)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-brandonrcruz-blue?style=social&logo=linkedin)](https://www.linkedin.com/in/brandonrcruz/)
+[![GitHub](https://img.shields.io/badge/GitHub-brandoncruz3-black?style=social&logo=github)](https://github.com/brandoncruz3)
+[![Website](https://img.shields.io/badge/Website-brandoncruz.dev-green?style=social)](https://brandoncruz.dev)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/timlrx/tailwind-nextjs-starter-blog)
+<!-- [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/brandoncruz3/blog) -->
 
-This is a [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/) blogging starter template. Version 2 is based on Next App directory with [React Server Component](https://nextjs.org/docs/getting-started/react-essentials#server-components) and uses [Contentlayer](https://www.contentlayer.dev/) to manage markdown content.
+Welcome to my personal blog! This is the source code for [brandoncruz.dev](https://brandoncruz.dev), where I write about DevSecOps, cloud architecture, web development, and technology.
 
-Probably the most feature-rich Next.js markdown blogging template out there. Easily configurable and customizable. Perfect as a replacement to existing Jekyll and Hugo individual blogs.
+## About Me
 
-Check out the documentation below to get started.
+I'm Brandon Cruz, a Staff DevSecOps Engineer at Ad Hoc LLC with over 17 years of experience in enterprise-scale software systems and infrastructure. I specialize in AWS, Kubernetes (EKS), Terraform, and automation pipelines, working across the full stack from backend services in Go, Python, and Ruby to frontend applications built with React.
 
-Facing issues? Check the [FAQ page](https://github.com/timlrx/tailwind-nextjs-starter-blog/wiki) and do a search on past issues. Feel free to open a new issue if none has been posted previously.
+## Blog Features
 
-Feature request? Check the past discussions to see if it has been brought up previously. Otherwise, feel free to start a new discussion thread. All ideas are welcomed!
+- **Spotify Integration**: Real-time "Now Playing" widget showing what I'm currently listening to
+- **Personal Introduction**: Custom homepage with my background and contact information
+- **Technical Content**: In-depth posts about DevSecOps, cloud architecture, and web development
+- **Modern Stack**: Built with Next.js 15, TypeScript, and Tailwind CSS
 
-## Variations
+## Template Credit
 
-**Note**: These are community contributed forks using different frameworks or with significant changes to the codebase - not officially supported.
+This blog is built using the excellent [Tailwind NextJS Starter Blog](https://github.com/timlrx/tailwind-nextjs-starter-blog) template by [Timothy Lin](https://www.timlrx.com). The template provides a solid foundation with Next.js, Contentlayer for MDX processing, and many other great features.
 
-Astro alternative - [Tailwind Astro Template](https://github.com/wanoo21/tailwind-astro-starting-blog).
+## Custom Features Added
 
-Remix-run alternative - [Tailwind Remix-run Starter Blog Template](https://github.com/SangeetAgarwal/tailwind-remix-run-mdxjs-typescript-starter-blog).
+- **Spotify Now Playing**: Real-time integration with Spotify Web API to show currently playing music
+- **Personal Homepage**: Custom introduction section with avatar and professional background 
+- **Buy Me a Coffee**: Support button for readers who enjoy the content
+- **Enhanced Author Profile**: Detailed about page with professional experience
 
-Internationalization support - [Template with i18n](https://tailwind-nextjs-starter-blog-i18n.vercel.app/) and [source code](https://github.com/PxlSyl/tailwind-nextjs-starter-blog-i18n/tree/main).
+## Recent Posts
 
-## Examples V2
+- [Building a Spotify Now Playing Widget for Next.js](https://brandoncruz.dev/blog/implementing-spotify-now-playing-nextjs) - Complete guide to integrating Spotify Web API with Next.js
+- More technical content coming soon!
 
-- [Demo Blog](https://tailwind-nextjs-starter-blog.vercel.app/) - this repo
-- [My personal blog](https://www.timlrx.com) - modified to auto-generate blog posts with dates
-- [Karhdo's Blog](https://karhdo.dev) - Karhdo's Blog - Karhdo's Coding Adventure ([source code](https://github.com/Karhdo/karhdo.dev))
-- [tsix blog](https://tsix.top) - A front-end engineer is used to record some knowledge points in work and study _中文_
-- [SOTO's Blog](https://www.atksoto.com/) - A more personalized personal website upgraded from V1 ([source code](https://github.com/acsoto/soto-blog-nextjs))
-- [Prabhu's Blog](https://v1-prabhukirankonda.vercel.app) - Prabhu's Personal website with blog ([source code](https://github.com/prabhukiran8790/prabhukirankonda))
+## Original Template Examples
+
+For examples of other blogs built with this template, see the [original template repository](https://github.com/timlrx/tailwind-nextjs-starter-blog)
+## Development Setup
+
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+<!-- - [Prabhu's Blog](https://v1-prabhukirankonda.vercel.app) - Prabhu's Personal website with blog ([source code](https://github.com/prabhukiran8790/prabhukirankonda))
 - [Rabby Hasan's Blog](https://blog.rabbyhasan.com.bd/) - Rabby Hasan's personal blog about full stack development with cloud ([source code](https://github.com/rabbyalone/myblog))
 - [enscribe.dev](https://enscribe.dev) - enscribe's personal blog; cybersecurity shenanigans, frontend webdev, etc. ([source code](https://github.com/jktrn/enscribe.dev))
 - [dalelarroder.com](https://dalelarroder.com) - Dale Larroder's personal website upgraded from V1 ([source code](https://github.com/dlarroder/dalelarroder))
@@ -124,13 +133,13 @@ Thanks to the community of users and contributors to the template! We are no lon
 - [kaveh.page](https://kaveh.page) - Kaveh Tehrani's personal blog. Added tags directory, profile card, time-to-read on posts directory, etc.
 - [drakerossman.com](https://drakerossman.com/) - Drake Rossman's blog about NixOS, Rust, Software Architecture and Engineering Management, as well as general musings.
 - [meamenu.com](https://www.meamenu.com) - Landing page and product blog starting from this template. It also uses [framer-motion](https://www.framer.com/motion) for animations, custom layout templates, [waline](https://waline.js.org/en/) for blog comments and [primereact](https://primereact.org/) forms [Ita]
-- [giovanni.orciuolo.it](https://giovanni.orciuolo.it) - Giovanni Orciuolo's personal website, blog and everything nerd.
+- [giovanni.orciuolo.it](https://giovanni.orciuolo.it) - Giovanni Orciuolo's personal website, blog and everything nerd. -->
 
-## Motivation
+## Why This Blog?
 
-I wanted to port my existing blog to Nextjs and Tailwind CSS but there was no easy out of the box template to use so I decided to create one. Design is adapted from [Tailwindlabs blog](https://github.com/tailwindlabs/blog.tailwindcss.com).
+I wanted a modern, fast blog to share my experiences in DevSecOps and cloud architecture. Timothy Lin's Tailwind NextJS Starter Blog provided the perfect foundation with its excellent developer experience and performance. I've customized it with Spotify integration and personal touches to make it uniquely mine.
 
-I wanted it to be nearly as feature-rich as popular blogging templates like [beautiful-jekyll](https://github.com/daattali/beautiful-jekyll) and [Hugo Academic](https://github.com/wowchemy/wowchemy-hugo-modules) but with the best of React's ecosystem and current web development's best practices.
+The blog serves as both a platform to document my learnings and a showcase of modern web development practices using Next.js, TypeScript, and Tailwind CSS.
 
 ## Features
 
@@ -162,14 +171,14 @@ I wanted it to be nearly as feature-rich as popular blogging templates like [bea
 - Preconfigured security headers
 - SEO friendly with RSS feed, sitemaps and more!
 
-## Sample posts
+<!-- ## Sample posts
 
 - [A markdown guide](https://tailwind-nextjs-starter-blog.vercel.app/blog/github-markdown-guide)
 - [Learn more about images in Next.js](https://tailwind-nextjs-starter-blog.vercel.app/blog/guide-to-using-images-in-nextjs)
 - [A tour of math typesetting](https://tailwind-nextjs-starter-blog.vercel.app/blog/deriving-ols-estimator)
 - [Simple MDX image grid](https://tailwind-nextjs-starter-blog.vercel.app/blog/pictures-of-canada)
 - [Example of long prose](https://tailwind-nextjs-starter-blog.vercel.app/blog/the-time-machine)
-- [Example of Nested Route Post](https://tailwind-nextjs-starter-blog.vercel.app/blog/nested-route/introducing-multi-part-posts-with-nested-routing)
+- [Example of Nested Route Post](https://tailwind-nextjs-starter-blog.vercel.app/blog/nested-route/introducing-multi-part-posts-with-nested-routing) -->
 
 ## Quick Start Guide
 
@@ -334,10 +343,21 @@ Consider removing the following features that cannot be used in a static build:
 - [How can I customize the `kbar` search?](/faq/customize-kbar-search.md)
 - [Deploy with docker](/faq/deploy-with-docker.md)
 
-## Support
+## Connect With Me
 
-Using the template? Support this effort by giving a star on GitHub, sharing your own blog and giving a shoutout on Twitter or becoming a project [sponsor](https://github.com/sponsors/timlrx).
+- **LinkedIn**: [Brandon Cruz](https://www.linkedin.com/in/brandonrcruz/)
+- **GitHub**: [@brandoncruz3](https://github.com/brandoncruz3)
+- **Website**: [brandoncruz.dev](https://brandoncruz.dev)
+- **Buy Me a Coffee**: [Support my writing](https://buymeacoffee.com/brandonrcrt)
 
-## Licence
+## Support the Original Template
 
-[MIT](https://github.com/timlrx/tailwind-nextjs-starter-blog/blob/main/LICENSE) © [Timothy Lin](https://www.timlrx.com)
+If you use Timothy Lin's template for your own blog, consider [sponsoring his work](https://github.com/sponsors/timlrx) or giving the [original repository](https://github.com/timlrx/tailwind-nextjs-starter-blog) a star!
+
+## License & Credits
+
+**Template**: [MIT](https://github.com/timlrx/tailwind-nextjs-starter-blog/blob/main/LICENSE) © [Timothy Lin](https://www.timlrx.com)
+
+**Content**: All blog posts and custom modifications © Brandon Cruz
+
+**Special Thanks**: To Timothy Lin for creating such an excellent Next.js blog template that made this project possible.

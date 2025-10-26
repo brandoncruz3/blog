@@ -1,6 +1,6 @@
 ---
 title: 'Building a Spotify Now Playing Widget for Next.js'
-date: '2024-10-26'
+date: '2025-10-26'
 tags: ['nextjs', 'spotify', 'api', 'react', 'oauth']
 draft: false
 summary: 'Learn how to integrate Spotify Web API with Next.js to display your currently playing track, including OAuth setup, token management, and troubleshooting common issues.'
@@ -93,12 +93,12 @@ function base64URLEncode(str: Buffer): string {
 }
 
 function sha256(buffer: string): Buffer {
-  const crypto = require('crypto')
+  const crypto = require('node:crypto')
   return crypto.createHash('sha256').update(buffer).digest()
 }
 
 function generateCodeVerifier(): string {
-  const crypto = require('crypto')
+  const crypto = require('node:crypto')
   return base64URLEncode(crypto.randomBytes(32))
 }
 
@@ -414,7 +414,7 @@ Create a `NowPlaying` component with SWR for real-time updates:
 import useSWR from 'swr'
 import fetcher from 'lib/fetcher'
 import MusicEqualizer from './MusicEqualizer'
-import { NowPlayingSong } from 'app/api/now-playing'
+import { NowPlayingSong } from 'types/spotify'
 import CustomLink from './CustomLink'
 
 export default function NowPlaying() {
@@ -519,6 +519,33 @@ When deploying to production:
 2. Use secure environment variable storage
 3. Consider implementing webhook-based updates for better performance
 4. Add proper error boundaries for graceful degradation
+
+## Build and Production Considerations
+
+### Testing Your Build Locally
+Always test your build before deploying:
+
+```bash
+npm run build
+```
+
+This will catch TypeScript errors, missing imports, and configuration issues early.
+
+### Common Build Failures
+
+1. **TypeScript Errors**: Don't import interfaces from API routes
+2. **Image Configuration**: Configure external domains in `next.config.js`
+3. **Environment Variables**: Ensure all required variables are set
+4. **ESLint Issues**: Use proper import syntax for Node.js modules
+
+### Production Deployment Checklist
+
+- [ ] Update Spotify app redirect URIs for production domains
+- [ ] Set environment variables securely (not in code)
+- [ ] Test token refresh functionality
+- [ ] Configure image domains for external assets
+- [ ] Run `npm run build` successfully locally
+- [ ] Test error boundaries and fallback states
 
 ## PKCE vs Client Credentials: Which to Choose?
 
